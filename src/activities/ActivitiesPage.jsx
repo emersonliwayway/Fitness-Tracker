@@ -1,6 +1,7 @@
 import useMutation from "../api/useMutation";
 import useQuery from "../api/useQuery";
 import { useAuth } from "../auth/AuthContext";
+import Activity from "./Activity";
 
 export default function ActivitiesPage() {
   // todo
@@ -31,31 +32,26 @@ export default function ActivitiesPage() {
       <h1>Activities</h1>
       <p>Imagine all the activities!</p>
 
+      {!activities && (
+        <>
+          <p>No activities yet...</p>
+        </>
+      )}
+
       {activities &&
         activities.map((item) => {
-          return <li key={item.id}>{item.name}</li>;
-        })}
-
-      {/* {token
-        ? activities &&
-          activities.map((item) => {
-            return (
-              <>
+          {
+            if (token) {
+              return (
                 <div key={item.id}>
                   <p>{item.name}</p>
                   <button>Remove</button>
                 </div>
-              </>
-            );
-          })
-        : activities &&
-          activities.map((item) => {
-            return (
-              <>
-                <div key={item.id}>{item.name}</div>
-              </>
-            );
-          })} */}
+              );
+            }
+            return <p key={item.id}>{item.name}</p>;
+          }
+        })}
     </>
   );
 }
