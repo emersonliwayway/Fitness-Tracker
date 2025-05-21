@@ -1,7 +1,6 @@
 import useMutation from "../api/useMutation";
 import useQuery from "../api/useQuery";
 import { useAuth } from "../auth/AuthContext";
-import Activity from "./Activity";
 
 export default function ActivitiesPage() {
   // todo
@@ -22,7 +21,56 @@ export default function ActivitiesPage() {
     error: addError,
   } = useMutation("POST", "/activities", ["activities"]);
 
-  // const addActivity = () => {};
+  const addActivity = (formData) => {
+    const name = formData.get("name");
+    const description = formData.get("description");
+    mutate({ name, description });
+  };
+
+  // activity component
+  const ActivityItem = ({ activity }) => {
+    const { token } = useAuth();
+
+    const {
+      mutate: deleteActivity,
+      loading: adding,
+      error: addError,
+    } = useMutation("DELETE", "/activities/" + activity.id, ["activities"]);
+
+    return (
+      <li>
+        <p>{activity.name}</p>
+        {token && (
+          <>
+            <p>{activity.description}</p>
+            <button onClick={() => deleteActivity()}>Remove</button>
+          </>
+        )}
+      </li>
+    );
+  };
+
+  // form component
+  const Form = ({ addActivity }) => {
+    return (
+      <>
+        <h2>Add a new activity</h2>
+        <form action={addActivity}>
+          <label>
+            Activity:
+            <input name="name" />
+          </label>
+          <br />
+          <label>
+            Description:
+            <input type="text" name="description" />
+          </label>
+          <br />
+          <button>Submit</button>
+        </form>
+      </>
+    );
+  };
 
   // grab token
   const { token } = useAuth();
@@ -37,21 +85,13 @@ export default function ActivitiesPage() {
           <p>No activities yet...</p>
         </>
       )}
-
-      {activities &&
-        activities.map((item) => {
-          {
-            if (token) {
-              return (
-                <div key={item.id}>
-                  <p>{item.name}</p>
-                  <button>Remove</button>
-                </div>
-              );
-            }
-            return <p key={item.id}>{item.name}</p>;
-          }
-        })}
+      <ul>
+        {activities &&
+          activities.map((item) => {
+            return <ActivityItem key={item.id} activity={item} />;
+          })}
+      </ul>
+      {token && <Form addActivity={addActivity} />}
     </>
   );
 }
